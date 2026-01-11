@@ -14,6 +14,13 @@ export default function App() {
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
 
+  // Analytics
+  const completedCount = todos.filter(t => t.completed).length;
+  const pendingCount = todos.length - completedCount;
+  const completionPercent = todos.length
+    ? Math.round((completedCount / todos.length) * 100)
+    : 0;
+
   const filtered = todos.filter((t) => {
     if (filter === "Completed" && !t.completed) return false;
     if (filter === "Pending" && t.completed) return false;
@@ -27,10 +34,31 @@ export default function App() {
 
       {user ? (
         <div
-          className="max-w-md mx-auto mt-6 p-5 rounded-2xl shadow
-                     bg-white text-gray-900
-                     dark:bg-gray-900 dark:text-gray-100"
+          className="
+            max-w-md mx-auto mt-6 p-5 rounded-2xl shadow
+            bg-[rgb(var(--card))] text-[rgb(var(--text))]
+          "
         >
+          {/* Analytics */}
+          <div className="mb-4 space-y-2">
+            <div className="flex justify-between text-sm font-medium">
+              <span>Completed: {completedCount}</span>
+              <span>Pending: {pendingCount}</span>
+              <span>Total: {todos.length}</span>
+            </div>
+
+            <div className="w-full h-2 rounded-full bg-[rgb(var(--border))] overflow-hidden">
+              <div
+                className="h-full bg-blue-600 transition-all"
+                style={{ width: `${completionPercent}%` }}
+              />
+            </div>
+
+            <div className="text-right text-xs text-gray-500 dark:text-gray-400">
+              {completionPercent}% done
+            </div>
+          </div>
+
           <TodoForm />
 
           {/* Search */}
@@ -40,10 +68,10 @@ export default function App() {
             onChange={(e) => setSearch(e.target.value)}
             className="
               w-full mt-4 px-3 py-2 rounded
-              border border-gray-300
-              bg-white text-gray-900
+              border
+              bg-[rgb(var(--card))] text-[rgb(var(--text))]
+              border-[rgb(var(--border))]
               focus:outline-none focus:ring-2 focus:ring-blue-500
-              dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
             "
           />
 
@@ -57,7 +85,7 @@ export default function App() {
                   ${
                     filter === f
                       ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-100"
+                      : "bg-[rgb(var(--border))] text-[rgb(var(--text))]"
                   }
                 `}
               >
@@ -79,10 +107,9 @@ export default function App() {
           </ul>
         </div>
       ) : (
-        <div className="mt-20 text-center text-lg font-medium text-gray-500 dark:text-red-500">
-         To use this tool, make sure you log in first.
-       </div>
-
+        <div className="mt-20 text-center text-lg font-medium text-gray-500 dark:text-gray-400">
+          To use this tool, make sure you log in first.
+        </div>
       )}
     </div>
   );
