@@ -16,7 +16,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex items-center justify-between px-4 sm:px-8 py-4 border-b border-[rgb(var(--border))]">
+    <nav className="flex items-center justify-between px-3 sm:px-8 py-3 border-b border-[rgb(var(--border))]">
       <h1 className="text-lg sm:text-xl font-bold">
         Todo<span className="text-blue-600">Flow</span>
       </h1>
