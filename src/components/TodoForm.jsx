@@ -1,47 +1,38 @@
 import { useState } from "react";
 import { db, auth } from "../lib/firebase";
-import {
-  addDoc,
-  collection,
-  serverTimestamp,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { useTodos } from "../hooks/useTodos";
 
 export default function TodoForm() {
   const [text, setText] = useState("");
   const [priority, setPriority] = useState("medium");
   const [category, setCategory] = useState("General");
   const [dueDate, setDueDate] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  const { todos } = useTodos(auth.currentUser?.uid);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isSubmitting || !auth.currentUser) return;
-    setIsSubmitting(true);
+    if (!auth.currentUser || !text.trim()) return;
+
+    const normalized = text.trim().toLowerCase();
+
+    // Instant duplicate check from live todos
+    if (todos.some(t => t.text.toLowerCase() === normalized)) {
+      setError("This task already exists");
+      return;
+    }
+
     setError("");
 
+    const tempText = text;
+    setText("");
+    setDueDate("");
+
     try {
-      if (!text.trim()) return;
-
-      const normalized = text.trim().toLowerCase();
-
-      const q = query(
-        collection(db, "todos"),
-        where("uid", "==", auth.currentUser.uid),
-        where("normalizedText", "==", normalized)
-      );
-
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        setError("This task already exists");
-        return;
-      }
-
       await addDoc(collection(db, "todos"), {
-        text,
+        text: tempText,
         normalizedText: normalized,
         completed: false,
         priority,
@@ -50,11 +41,9 @@ export default function TodoForm() {
         createdAt: serverTimestamp(),
         uid: auth.currentUser.uid,
       });
-
-      setText("");
-      setDueDate("");
-    } finally {
-      setIsSubmitting(false);
+    } catch {
+      setText(tempText);
+      setError("Failed to add task");
     }
   };
 
@@ -107,11 +96,8 @@ export default function TodoForm() {
                    text-[rgb(var(--text))]"
       />
 
-      <button
-        disabled={isSubmitting}
-        className="w-full py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-      >
-        {isSubmitting ? "Adding..." : "Add Task"}
+      <button className="w-full py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+        Add Task
       </button>
     </form>
   );
