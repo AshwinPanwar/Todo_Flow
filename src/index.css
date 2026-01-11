@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg: 255 255 255;
+    --text: 17 24 39;
+    --card: 255 255 255;
+    --border: 209 213 219;
+  }
+
+  .dark {
+    --bg: 3 7 18;
+    --text: 243 244 246;
+    --card: 17 24 39;
+    --border: 55 65 81;
+  }
+
+  body {
+    background-color: rgb(var(--bg));
+    color: rgb(var(--text));
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  input,
+  select,
+  textarea {
+    background-color: rgb(var(--card));
+    color: rgb(var(--text));
+    border-color: rgb(var(--border));
+  }
+}
